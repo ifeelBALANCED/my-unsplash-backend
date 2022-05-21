@@ -2,6 +2,8 @@
 
 My unsplash challenge backend
 
+[Deployed version](https://my-unsplash-backend.herokuapp.com/)
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
