@@ -1,18 +1,20 @@
-import { PrismaModule } from './prisma/prisma.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigurationService } from './configuration/configuration/configuration.service';
+import { ConfigurationService } from './config/global/configuration.service';
+import { PrismaModule } from './database/prisma/prisma.module';
+import { AwsSdkModule } from './models/aws-sdk/aws-sdk.module';
+import { PhotoModule } from './models/photo/photo.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [AppController],
-  providers: [AppService, ConfigurationService],
+    imports: [PrismaModule, PhotoModule, AwsSdkModule],
+    controllers: [AppController],
+    providers: [AppService, ConfigurationService],
 })
 export class AppModule {
-  static port: number;
+    static port: number;
 
-  constructor(private readonly configurationService: ConfigurationService) {
-    AppModule.port = this.configurationService.port as number;
-  }
+    constructor(private readonly configurationService: ConfigurationService) {
+        AppModule.port = this.configurationService.port as number;
+    }
 }

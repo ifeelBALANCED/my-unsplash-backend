@@ -4,6 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class ConfigurationService {
     public port;
     constructor() {
-        this.port = process.env.PORT || 5000;
+        this.port = process.env.APP_PORT || 5000;
     }
 }
