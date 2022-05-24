@@ -19,11 +19,6 @@ export class PhotoService {
             mimetype: $output.headers['content-type'],
         };
         const $uploadFile = await this.awsSdk.uploadFile(file);
-        const $label = await this.findByLabel(photoCreateInput.label);
-        const $photoUrl = await this.findByUrl(photoCreateInput.photoUrl);
-        if (!$label || !$photoUrl) {
-            throw new HttpException('No label or photo url specified', HttpStatus.BAD_REQUEST);
-        }
         const data = { label: photoCreateInput.label, photoUrl: $uploadFile.Location };
         return await this.prisma.photo.create({ data });
     }
@@ -45,10 +40,6 @@ export class PhotoService {
 
     async findByLabel(label: string): Promise<Photo> {
         return await this.prisma.photo.findFirst({ where: { label } });
-    }
-
-    async findByUrl(photoUrl: string): Promise<Photo> {
-        return await this.prisma.photo.findFirst({ where: { photoUrl } });
     }
 
     async removeOne(id: number): Promise<Photo> {
