@@ -24,7 +24,8 @@ export class PhotoService {
         if (!$label || !$photoUrl) {
             throw new HttpException('No label or photo url specified', HttpStatus.BAD_REQUEST);
         }
-        return await this.prisma.photo.create({ data: { label: photoCreateInput.label, photoUrl: $uploadFile.Location } });
+        const data = { label: photoCreateInput.label, photoUrl: $uploadFile.Location };
+        return await this.prisma.photo.create({ data });
     }
 
     async findAll(query?: PhotoQueryParams): Promise<Photo[]> {
@@ -51,12 +52,13 @@ export class PhotoService {
     }
 
     async removeOne(id: number): Promise<Photo> {
-        const $photo = await this.prisma.photo.delete({ where: { id } });
-
-        if (!$photo) {
-            throw new HttpException('Photo does not exist', HttpStatus.NOT_FOUND);
+        try {
+            const $photo = await this.prisma.photo.delete({ where: { id } });
+            return $photo;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new HttpException(`You can't delete photo which doesnt't exist`, HttpStatus.NOT_FOUND);
+            } else console.error(error);
         }
-
-        return $photo;
     }
 }
