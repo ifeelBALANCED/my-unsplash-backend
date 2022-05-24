@@ -18,24 +18,21 @@ export class PhotoController {
     }
 
     @Get()
-    @ApiQuery({ name: 'label', type: PhotoQuery })
-    @ApiBody({ type: PhotoInput, isArray: true })
+    @ApiQuery({ name: 'label', type: PhotoQuery, required: false })
     @ApiOperation({ summary: 'Get all photos, you can also search a photo by label' })
-    findAll(@Query() query: PhotoQueryParams): Promise<Photo[]> {
+    findAll(@Query() query?: PhotoQueryParams): Promise<Photo[]> {
         return this.photoService.findAll(query);
     }
 
     @Get(':id')
-    @ApiBody({ type: PhotoInput })
     @ApiOperation({ summary: 'Gets one photo by id' })
     findByLabel(@Param('id') id: string): Promise<Photo> {
         return this.photoService.findById(Number(id));
     }
 
     @Delete(':id')
-    @ApiBody({ type: PhotoInput })
     @ApiOperation({ summary: 'Deletes one photo by id' })
-    remove(@Param('id') id: string) {
-        return this.photoService.removeOne({ id: Number(id) });
+    remove(@Param('id') id: string): Promise<Photo> {
+        return this.photoService.removeOne(Number(id));
     }
 }

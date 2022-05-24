@@ -13,6 +13,6 @@ export class PhotoInput implements Prisma.PhotoCreateInput {
 }
 
 export class PhotoQuery {
-    @ApiProperty()
-    label?: string
+    @ApiProperty({ required: false })
+    label?: string;
 }

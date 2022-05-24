@@ -1,4 +1,4 @@
-import { AwsSdkService } from './../aws-sdk/aws-sdk.service';
+import { AwsSdkService } from '../aws-sdk/aws-sdk.service';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
 import { Photo, Prisma } from '@prisma/client';
@@ -27,7 +27,7 @@ export class PhotoService {
         return await this.prisma.photo.create({ data: { label: photoCreateInput.label, photoUrl: $uploadFile.Location } });
     }
 
-    async findAll(query: PhotoQueryParams): Promise<Photo[]> {
+    async findAll(query?: PhotoQueryParams): Promise<Photo[]> {
         if (query.label) {
             return await this.prisma.photo.findMany({ where: { label: query.label } });
         }
@@ -35,7 +35,11 @@ export class PhotoService {
     }
 
     async findById(id: number): Promise<Photo> {
-        return await this.prisma.photo.findUnique({ where: { id } });
+        const $photo = await this.prisma.photo.findUnique({ where: { id } });
+        if (!$photo) {
+            throw new HttpException('There is no photo with that id', HttpStatus.NOT_FOUND);
+        }
+        return $photo;
     }
 
     async findByLabel(label: string): Promise<Photo> {
@@ -46,15 +50,13 @@ export class PhotoService {
         return await this.prisma.photo.findFirst({ where: { photoUrl } });
     }
 
-    async removeOne(where: Prisma.PhotoWhereUniqueInput): Promise<Photo> {
-        const photo = await this.prisma.photo.delete({
-            where,
-        });
+    async removeOne(id: number): Promise<Photo> {
+        const $photo = await this.prisma.photo.delete({ where: { id } });
 
-        if (!photo) {
+        if (!$photo) {
             throw new HttpException('Photo does not exist', HttpStatus.NOT_FOUND);
         }
 
-        return photo;
+        return $photo;
     }
 }
