@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Photo, Prisma } from '@prisma/client';
-import { PhotoQueryParams } from '../aws-sdk/aws-sdk.types';
 import { PhotoInput, PhotoQuery } from './photo.dto';
 import { PhotoService } from './photo.service';
+import { PhotoQueryParams } from './photo.types';
 
 @ApiTags('Photo')
 @Controller('/api/v1/photo')

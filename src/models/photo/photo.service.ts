@@ -1,25 +1,17 @@
-import { AwsSdkService } from '../aws-sdk/aws-sdk.service';
 import { PrismaService } from '../../database/prisma/prisma.service';
-import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Photo, Prisma } from '@prisma/client';
-import { HttpService } from '@nestjs/axios';
-import { MulterFile, PhotoQueryParams } from '../aws-sdk/aws-sdk.types';
-import { firstValueFrom } from 'rxjs';
+import { PhotoQueryParams } from './photo.types';
 
 @Injectable()
 export class PhotoService {
-    constructor(private readonly prisma: PrismaService, private readonly awsSdk: AwsSdkService, private readonly httpService: HttpService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async createOne(photoCreateInput: Prisma.PhotoCreateInput) {
-        const $response = await this.httpService.get(photoCreateInput.photoUrl, { responseType: 'arraybuffer' });
-        const $output = await firstValueFrom($response);
-        const file: MulterFile = {
-            buffer: $output.data,
-            originalname: photoCreateInput.label,
-            mimetype: $output.headers['content-type'],
+        const data = {
+            ...photoCreateInput,
+            password: this.generatePassword(),
         };
-        const $uploadFile = await this.awsSdk.uploadFile(file);
-        const data = { label: photoCreateInput.label, photoUrl: $uploadFile.Location };
         return await this.prisma.photo.create({ data });
     }
 
@@ -38,18 +30,25 @@ export class PhotoService {
         return $photo;
     }
 
-    async findByLabel(label: string): Promise<Photo> {
-        return await this.prisma.photo.findFirst({ where: { label } });
-    }
-
     async removeOne(id: number): Promise<Photo> {
         try {
             const $photo = await this.prisma.photo.delete({ where: { id } });
             return $photo;
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new HttpException(`You can't delete photo which doesnt't exist`, HttpStatus.NOT_FOUND);
+                throw new HttpException(`You can't delete photo which doesn't exist`, HttpStatus.NOT_FOUND);
             } else console.error(error);
         }
     }
+
+    generatePassword = () => {
+        const chars = '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const passwordLength = 12;
+        let password = '';
+        for (let i = 0; i <= passwordLength; i++) {
+            const randomNumber = Math.floor(Math.random() * chars.length);
+            password += chars.substring(randomNumber, randomNumber + 1);
+        }
+        return password;
+    };
 }

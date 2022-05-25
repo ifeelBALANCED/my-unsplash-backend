@@ -12,4 +12,5 @@ model Photo {
   id       Int    @id @default(autoincrement())
   label    String @default("")
   photoUrl String @default("")
+  password String? @default("")
 }
