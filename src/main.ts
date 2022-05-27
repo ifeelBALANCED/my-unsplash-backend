@@ -7,7 +7,8 @@ const bootstrap = async () => {
     const config = new DocumentBuilder().setTitle('My Unsplash API').setDescription('The My Unsplash API').setVersion('1.0').build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/api/v1', app, document);
-    await app.listen(AppModule.port);
+    app.enableShutdownHooks();
+    await app.listen(AppModule.port || 4000);
 };
 
 bootstrap();
